@@ -4,6 +4,7 @@ from scipy.linalg import expm
 import cmath
 import pandas as pd 
 import sys
+from concurrent.futures import ThreadPoolExecutor
 
 N = int(sys.argv[1]) #number of lattice sites, sites labelled from 0 to N-1
 system = sys.argv[2]
@@ -12,7 +13,6 @@ state = sys.argv[4]
 T_i = int(sys.argv[5])#evolution will be computed for times 10^{T_i} to 10^{T_f}
 T_f = int(sys.argv[6])
 
-print(f"{N} {state}")
 #initial states for 2-point and 4-point correlator vectors:
 
 D0 = np.zeros(N**2,dtype=complex) #vector to store initial state
@@ -24,7 +24,7 @@ if(state=="alt"): ind = [n for n in range(N) if (n+1)%2==0]
 if(state=="dom"): ind = [n for n in range(int(N/2))]
 if(state=="stagg"): ind = [n for n in range(int(N/2)) if (n+1)%2==0]
 
-ind = [(N*n+n) for n in ind]
+ind = [(N+1)*n for n in ind]
 D0[ind] = 1.0 + 0.0j
 
 print("Initial State Defined")
@@ -63,10 +63,12 @@ for i in range(len(times)):
     start = time.time()
     
     t = times[i]
-    D[i] = np.dot(np.kron(expm(B*t),expm(A*t)),D0)
+    expAt,expBt = expm(A*t),expm(B*t)
+   # D[i] = np.dot(np.kron(expm(B*t),expm(A*t)),D0)
+    D[i] = [sum([expBt[m//N][n//N]*expAt[m%N][n%N] for n in ind]) for m in range(N**2)]
     #F[i] = np.dot(np.kron(expm(B*t),np.kron(expm(B*t),np.kron(expm(A*t),expm(A*t)))),F[i-1])
-        
-        
+
+    
     end = time.time()
     print(f"iteration:{i} time:{t}  time taken:{end-start} seconds")
 
