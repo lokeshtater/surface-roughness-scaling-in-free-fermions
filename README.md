@@ -1,3 +1,7 @@
+This script computes the dynamics of bipartite particle number fluctuation in long-range hopping, non-interacting fermionic lattice.
+Parameters of the system such as lattice sizes, range of hopping and initial state of the system can be configured in main.sh
+
+
 # Surface Roughness Scaling in Free Fermions
 
 ## How to use the repository:
